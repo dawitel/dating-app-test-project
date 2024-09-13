@@ -1,59 +1,14 @@
-# Simple Makefile for a Go project
-
-# Build the application
-all: build
+run:
+	@go run ./cmd/main.go
 
 build:
-	@echo "Building..."
-	
-	
-	@go build -o main.exe cmd/api/main.go
+	@docker build -t matchmaking-app .
 
-# Run the application
-run:
-	@go run cmd/api/main.go
+migrate-up:
+	@migrate -path ./migrations -database "postgresql://root:1234@localhost:5432/dating_app?sslmode=disable" -verbose up
 
+migrate-down:
+	@migrate -path ./migrations -database "postgresql://root:1234@localhost:5432/dating_app?sslmode=disable" down
 
-# Create DB container
-docker-run:
-	@if docker compose up 2>/dev/null; then \
-		: ; \
-	else \
-		echo "Falling back to Docker Compose V1"; \
-		docker-compose up; \
-	fi
-
-# Shutdown DB container
-docker-down:
-	@if docker compose down 2>/dev/null; then \
-		: ; \
-	else \
-		echo "Falling back to Docker Compose V1"; \
-		docker-compose down; \
-	fi
-
-
-# Test the application
-test:
-	@echo "Testing..."
-	@go test ./... -v
-
-
-# Integrations Tests for the application
-itest:
-	@echo "Running integration tests..."
-	@go test ./internal/database -v
-
-
-# Clean the binary
-clean:
-	@echo "Cleaning..."
-	@rm -f main
-
-# Live Reload
-
-watch:
-	@air
-
-
-.PHONY: all build run test clean watch
+migrate-create:
+	@ @migrate create -ext sql -dir ./migrations -seq init_schema
