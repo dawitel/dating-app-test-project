@@ -1,6 +1,7 @@
 package api
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 	"test-matchmaking-app/internal/repository"
@@ -9,58 +10,50 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// MatchmakingHandler represets the handler for the metchmaking process.
+// MatchmakingHandler represents the handler for the matchmaking process.
 type MatchmakingHandler struct {
 	service  *service.MatchmakingService
 	UserRepo *repository.UserRepository
 }
 
-// NewMatchmakingHandler returs a pointer to a new matchmakig hadler.
+// NewMatchmakingHandler returns a pointer to a new matchmaking handler.
 func NewMatchmakingHandler(service *service.MatchmakingService, userRepo *repository.UserRepository) *MatchmakingHandler {
 	return &MatchmakingHandler{service: service, UserRepo: userRepo}
 }
 
-// GetMatchRecommendations retrieves potential matches for the user with pagination
 func (h *MatchmakingHandler) GetMatchRecommendations(c *gin.Context) {
-	// Get userID from context (after middleware authentication)
-	userID, exists := c.Get("userID")
-	if !exists {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
+	userID := c.Param("user_id")
+	if userID == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
 		return
 	}
 
-	// Retrieve the user from the database
-	user, err := h.UserRepo.GetUserByID(userID.(string))
+	user, err := h.UserRepo.GetUserByID(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving user"})
 		return
 	}
 
-	// Pagination parameters
-	limitStr := c.Query("limit")
-	offsetStr := c.Query("offset")
-
-	limit, err := strconv.Atoi(limitStr)
-	if err != nil || limit <= 0 {
-		limit = 10 // Default limit
+	pageStr := c.Query("page")
+	page, err := strconv.Atoi(pageStr)
+	if err != nil || page <= 0 {
+		page = 1 // Default to the first page
 	}
 
-	offset, err := strconv.Atoi(offsetStr)
-	if err != nil || offset < 0 {
-		offset = 0 // Default offset
-	}
+	pageSize := 10 // Define the number of items per page
+	offset := (page - 1) * pageSize
 
-	// Fetch matching users based on preferences, interests, and activity
-	matches, err := h.UserRepo.GetMatchesForUser(user, limit, offset)
+	fmt.Printf("Page: %d, PageSize: %d, Offset: %d\n", page, pageSize, offset) // Debug log
+
+	matches, err := h.UserRepo.GetMatchesForUser(user, pageSize, offset)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving matches"})
 		return
 	}
 
-	// Return the matches as a response with pagination
 	c.JSON(http.StatusOK, gin.H{
 		"matches": matches,
-		"limit":   limit,
-		"offset":  offset,
+		"page":    page,
+		"pageSize": pageSize,
 	})
 }

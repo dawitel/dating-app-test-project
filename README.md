@@ -33,6 +33,7 @@ This backend service handles user operations and matchmaking functionality for a
 - Docker (for containerization)
 - `migrate` tool for database migrations
 - `make` tool for facilitating the development and testing process
+- `python` optional for testing and seeding the user database
 
 ## Setup and Installation
 
@@ -146,7 +147,7 @@ This backend service handles user operations and matchmaking functionality for a
 
   ```json
   {
-    "name": "John Doe",
+    "username": "John Doe",
     "password": "your_password"
   }
   ```

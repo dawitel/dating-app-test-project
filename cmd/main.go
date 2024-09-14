@@ -14,11 +14,11 @@ import (
 )
 
 func main() {
-	// load configurations for the app
+	// Load configurations for the app
 	cfg := config.LoadConfig()
 	dsn := cfg.GetDSN()
-	
-	// open a postgres db connection
+
+	// Open a PostgreSQL DB connection
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatal("Failed to connect to database:", err)
@@ -31,7 +31,7 @@ func main() {
 	authService := service.NewAuthService()
 	userHandler := api.NewUserHandler(userRepo, authService)
 
-	// initiate the router for the app with error handlig
+	// Initiate the router for the app with error handling
 	router := gin.Default()
 	router.HandleMethodNotAllowed = true
 	router.NoMethod(func(c *gin.Context) {
@@ -40,13 +40,17 @@ func main() {
 		})
 	})
 
-	// these routes are made public for simlicity
+	// Public routes
 	router.GET("/api/v1/match/recommendations/:user_id", matchmakingHandler.GetMatchRecommendations)
 	router.POST("/api/v1/sign-up", userHandler.CreateUser)
 
-	// protected route for demonstrating the auth service functioality 
-	router.POST("/api/v1/sign-in", authService.AuthMiddleware(), userHandler.LoginHandler)
-	router.DELETE("/api/v1/delete/:user_id", authService.AuthMiddleware(), userHandler.DeleteUser)
+	// Protected routes with JWT authentication
+	authRoutes := router.Group("/users")
+	authRoutes.Use(authService.AuthMiddleware()) // JWT protection
+	{
+		authRoutes.POST("/api/v1/sign-in", userHandler.LoginHandler)
+		authRoutes.DELETE("/api/v1/delete/:user_id", userHandler.DeleteUser)
+	}
 
 	router.Run(cfg.Port)
 }

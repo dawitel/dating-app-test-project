@@ -31,7 +31,7 @@ func LoadConfig() *Config {
 		DBPassword: getEnv("DB_PASSWORD", "1234"),
 		DBName:     getEnv("DB_NAME", "dating_app"),
 		DBPort:     port,
-		SSLMode:    getEnv("SSL_MODE", "disabled"),
+		SSLMode:    getEnv("SSL_MODE", "disable"),
 		Port:       getEnv("PORT", ":8080"),
 		JWTSecret:  getEnv("JWT_SECRET", "topsecret"),
 	}

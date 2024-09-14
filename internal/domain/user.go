@@ -3,6 +3,7 @@ package domain
 import (
 	"database/sql/driver"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"time"
 
@@ -48,4 +49,26 @@ func (p *Preferences) Scan(value interface{}) error {
 // Implement the Valuer interface for Preferences to serialize to JSONB for DB
 func (p Preferences) Value() (driver.Value, error) {
 	return json.Marshal(p)
+}
+
+// Implement the Scanner interface for Location to scan data from the database
+func (l *Location) Scan(value interface{}) error {
+	// Try to convert the value to a byte slice
+	bytes, ok := value.([]byte)
+	if !ok {
+		return errors.New("failed to convert database value to Location")
+	}
+
+	// Unmarshal the JSON data into the Location struct
+	if err := json.Unmarshal(bytes, l); err != nil {
+		return fmt.Errorf("failed to unmarshal Location: %v", err)
+	}
+
+	return nil
+}
+
+// Implement the Valuer interface for Location to store the Location in the database
+func (l Location) Value() (driver.Value, error) {
+	// Marshal the Location struct into a JSON format for storage
+	return json.Marshal(l)
 }

@@ -27,25 +27,25 @@ func (r *UserRepository) GetUserByID(userID string) (domain.User, error) {
 	return user, err
 }
 
-// GetMatchesForUser retrieves matches based on user preferences, location, mutual interests, and activity status.
 func (r *UserRepository) GetMatchesForUser(user domain.User, limit, offset int) ([]domain.User, error) {
 	var matches []domain.User
 
-	// Filter based on gender preference, age range, location (distance), and mutual interests
 	err := r.db.
 		Where("gender = ?", user.Preferences.Gender).
 		Where("age BETWEEN ? AND ?", user.Preferences.MinAge, user.Preferences.MaxAge).
-		Where("ST_DistanceSphere(ST_MakePoint(longitude, latitude), ST_MakePoint(?, ?)) <= ?",
+		Where("ST_DistanceSphere(ST_MakePoint((location->>'longitude')::float8, (location->>'latitude')::float8), ST_MakePoint(?, ?)) <= ?",
 			user.Location.Longitude, user.Location.Latitude, user.Preferences.MaxDistance).
-		Where("array_length(array(select unnest(interests) intersect select unnest(?)), 1) > 0", pq.Array(user.Interests)). // Filter by mutual interests
+		Where("array_length(array(select unnest(interests::text[]) intersect select unnest(?::text[])), 1) > 0", pq.Array(user.Interests)).
 		Limit(limit).
 		Offset(offset).
-		Order(clause.OrderByColumn{Column: clause.Column{Name: "last_active"}, Desc: true}). // Prioritize recent activity
+		Order(clause.OrderByColumn{Column: clause.Column{Name: "last_active"}, Desc: true}).
 		Find(&matches).Error
 
 	if err != nil {
 		return nil, err
 	}
+
+	matches = r.rankByMutualInterests(user, matches)
 
 	return matches, nil
 }
@@ -85,6 +85,7 @@ func intersect(a, b []string) []string {
 	}
 	return result
 }
+
 
 // DeleteUser deletes a user by their ID
 func (r *UserRepository) DeleteUser(userID string) error {
