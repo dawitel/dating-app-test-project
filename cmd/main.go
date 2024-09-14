@@ -41,14 +41,14 @@ func main() {
 	})
 
 	// Public routes
-	router.GET("/api/v1/match/recommendations/:user_id", matchmakingHandler.GetMatchRecommendations)
 	router.POST("/api/v1/sign-up", userHandler.CreateUser)
-
+	router.POST("/api/v1/sign-in", userHandler.LoginHandler)
+	router.GET("/api/v1/match/recommendations/:user_id", matchmakingHandler.GetMatchRecommendations)
+	
 	// Protected routes with JWT authentication
-	authRoutes := router.Group("/users")
+	authRoutes := router.Group("/api/v1/protected")
 	authRoutes.Use(authService.AuthMiddleware()) // JWT protection
 	{
-		authRoutes.POST("/sign-in", userHandler.LoginHandler)
 		authRoutes.DELETE("/delete/:user_id", userHandler.DeleteUser)
 	}
 

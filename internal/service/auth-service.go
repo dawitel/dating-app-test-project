@@ -6,7 +6,7 @@ import (
 	"test-matchmaking-app/config"
 	"time"
 
-	"github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,7 +16,7 @@ type AuthService struct {
 
 type Claims struct {
 	UserID string `json:"user_id"`
-	jwt.StandardClaims
+	jwt.RegisteredClaims
 }
 
 // NewAuthService initializes a new AuthService
@@ -32,9 +32,9 @@ func (s *AuthService) GenerateToken(userID string) (string, error) {
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &Claims{
 		UserID: userID,
-		StandardClaims: jwt.StandardClaims{
-			ExpiresAt: expirationTime.Unix(),
-			IssuedAt:  time.Now().Unix(),
+		RegisteredClaims: jwt.RegisteredClaims{
+			ExpiresAt: jwt.NewNumericDate(expirationTime),
+			IssuedAt:  jwt.NewNumericDate(time.Now()),
 		},
 	}
 
@@ -67,12 +67,15 @@ func (s *AuthService) ValidateToken(tokenString string) (*Claims, error) {
 // AuthMiddleware is a middleware to protect routes
 func (s *AuthService) AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		tokenString := c.GetHeader("Authorization")
-		if tokenString == "" {
+		authHeader := c.GetHeader("Authorization")
+		if authHeader == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "Authorization header missing"})
 			c.Abort()
 			return
 		}
+
+		// Extract token from the "Bearer <token>" scheme
+		tokenString := authHeader[len("Bearer "):]
 
 		claims, err := s.ValidateToken(tokenString)
 		if err != nil {

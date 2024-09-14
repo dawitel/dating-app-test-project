@@ -1,6 +1,6 @@
 # Dating App Backend for Upwork
 
-This is a backend service for a dating app implemented in Go using the Gin framework and GORM for ORM for a test round for upwork job. The service includes endpoints for user management and matchmaking, with data stored in a PostgreSQL database. Matchmaking is optimized with mutual interests filtering and location-based ranking.
+This is a backend service for a dating app implemented in Go using the Gin framework and GORM for ORM for a test round for an Upwork job. The service includes endpoints for user management and matchmaking, with data stored in a PostgreSQL database. Matchmaking is optimized with mutual interests filtering and location-based ranking.
 
 ## Table of Contents
 
@@ -14,8 +14,11 @@ This is a backend service for a dating app implemented in Go using the Gin frame
   - [Matchmaking Recommendations](#matchmaking-recommendations)
 - [Database Migrations](#database-migrations)
 - [Testing](#testing)
+  - [Test Data](#test-data)
+  - [Using `seed.py` for Testing](#using-seedpy-for-testing)
 - [Docker](#docker)
 - [Makefile](#makefile)
+- [Contributing](#contributing)
 - [License](#license)
 
 ## Project Overview
@@ -28,12 +31,12 @@ This backend service handles user operations and matchmaking functionality for a
 
 ## Requirements
 
-- Go 1.18 or higher
-- PostgreSQL with PostGIS extension (for location-based queries)
-- Docker (for containerization)
+- `Go` 1.18 or higher
+- `PostgreSQL` with PostGIS extension (for location-based queries)
+- `Docker` (for containerization)
 - `migrate` tool for database migrations
 - `make` tool for facilitating the development and testing process
-- `python` optional for testing and seeding the user database
+- `python` (optional for testing and seeding the user database)
 
 ## Setup and Installation
 
@@ -61,11 +64,11 @@ This backend service handles user operations and matchmaking functionality for a
 
 4. **Configure Environment Variables:**
 
-   rename the .ev.example file to `.env` and replace them with the variables of your local machine
+   Rename the `.ev.example` file to `.env` and replace the variables with those specific to your local machine.
 
 5. **Run Database Migrations:**
 
-  update the content of the make file to accomodate the local setup of you machine then run the following commands
+   Update the content of the Makefile to accommodate the local setup of your machine, then run the following commands:
 
    ```bash
    make migrate-create
@@ -81,25 +84,25 @@ This backend service handles user operations and matchmaking functionality for a
 
 6. **Start the Application:**
 
-  you can use one of the followig options to ru the app
-  
-  1. Dry run
-  
-   ```bash
-   make run
-   ```
-  
-  2. using air for hot reloading
-  
-   ```bash
-   make air
-   ```
-  
-  3. using docker-compose
-  
-   ```bash
-   make start
-   ```
+   You can use one of the following options to run the app:
+
+   1. Dry run
+
+      ```bash
+      make run
+      ```
+
+   2. Using `air` for hot reloading
+
+      ```bash
+      make air
+      ```
+
+   3. Using Docker Compose
+
+      ```bash
+      make start
+      ```
 
 ## API Endpoints
 
@@ -112,7 +115,7 @@ This backend service handles user operations and matchmaking functionality for a
   ```json
   {
     "name": "John Doe",
-    "passord":"the_most_secure_password_on_earth",
+    "password": "the_most_secure_password_on_earth",
     "age": 30,
     "gender": "male",
     "location": {
@@ -139,9 +142,9 @@ This backend service handles user operations and matchmaking functionality for a
   }
   ```
 
-## Sign In
+### Sign In
 
-- **Endpoint:** `POST /users/sign-in`
+- **Endpoint:** `POST /api/v1/sign-in`
 - **Description:** Login as a user.
 - **Request Body:**
 
@@ -159,7 +162,6 @@ This backend service handles user operations and matchmaking functionality for a
     "message": "you are Logged in",
     "token": "your.jwt.token"
   }
-
   ```
 
 ### Delete User
@@ -168,7 +170,7 @@ This backend service handles user operations and matchmaking functionality for a
 - **Description:** Deletes a user profile based on the user ID.
 - **Parameters:**
   - `user_id` (path parameter): The UUID of the user to be deleted.
-  - `Authorization`(header): The jwt token provided durig creation.
+  - `Authorization` (header): The JWT token provided during creation.
 - **Response:**
 
   ```json
@@ -201,7 +203,7 @@ This backend service handles user operations and matchmaking functionality for a
     },
     {
       "user_id": "another-uuid",
-      "name": "Margaret lua",
+      "name": "Margaret Lua",
       "age": 28,
       "gender": "female",
       "location": {
@@ -216,50 +218,92 @@ This backend service handles user operations and matchmaking functionality for a
 
 ## Database Migrations
 
-Migrations are managed using the `migrate` tool. Place migration files in the `migrations` directory. Apply migrations with:
+Migrations are managed using the `migrate` tool. the migration files are in the `migrations` directory. Apply migrations with:
 
 ```bash
 migrate -path ./migrations -database "$DATABASE_URL" up
 ```
 
-Make sure your migrations handle fields for user location, preferences, interests, and timestamps.
-
-- **Indexes:**
-  - Ensure `GIN` indexing on `interests` for faster mutual interest querying:
-
-    ```sql
-    CREATE INDEX idx_users_interests ON users USING gin (interests);
-    ```
-
-  - Create `GIST` index for location-based queries using PostGIS:
-
-    ```sql
-    CREATE INDEX idx_users_location ON users USING gist (ST_MakePoint(longitude, latitude));
-    ```
-
 ## Testing
 
-To test the application, use tools like Postman or curl. Ensure your server is running and use the provided endpoints to perform various CRUD operations.
+To test the application, use the `Postman collection` in the `docs` folder. along side the `test` folder contents which are explained below.
+
+### Test Data
+
+You can use the `test.json` file to seed your database. The data includes a variety of users with different interests and preferences for thorough testing.
+
+### Using `seed.py` for Testing
+
+To quickly populate the database with test data, you can use the `seed.py` script. This script reads from a JSON file and inserts the data into your database.
+
+1. **Ensure Python is Installed:**
+
+   Make sure you have Python 3.x installed on your system.
+
+2. **Install Required Python Packages:**
+
+   ```bash
+   pip install psycopg2-binary requests
+   ```
+
+3. **Prepare Test Data File:**
+
+   Save the test data provided above into a file named `test_data.json`.
+
+4. **Run `seed.py`:**
+
+   ```bash
+   python seed.py --file test_data.json
+   ```
+
+   The script will read the data from `test.json` and insert it into the PostgreSQL database. Make sure to update the database connection details in `seed.py` if needed.
 
 ## Docker
 
-To run the application in a Docker container, build and run the Docker image:
+To run the application in Docker containers using Docker Compose, follow these steps:
 
-1. **Build the Docker Image:**
+1. **Build the Docker Image and Start Containers:**
+
+   To build the Docker image and start the application with Docker Compose, run:
 
    ```bash
-   make build 
+   make start
    ```
 
-2. **Run the Docker Container:**
+   This command will:
+   - Build the Docker image using `docker-compose`.
+   - Apply database migrations using `migrate-up`.
+   - Start the application and related services defined in `docker-compose.yml`.
+
+2. **Build the Docker Image Only:**
+
+   If you want to build the Docker image without starting the containers, use:
 
    ```bash
-   docker run -p 8080:8080 --env-file .env dating-app-backend
+   make docker-compose-build
+   ```
+
+   This will build the Docker image without caching.
+
+3. **Start Docker Containers:**
+
+   To start the Docker containers defined in `docker-compose.yml` without rebuilding the image, run:
+
+   ```bash
+   make docker-compose-up
+   ```
+
+4. **Stop Docker Containers:**
+
+   To stop and remove the running Docker containers, use:
+
+   ```bash
+   make docker-compose-down
    ```
 
 ## Makefile
 
-The Makefile provides convenient commands for managing the application. you can update it to make it go for your needs
+The Makefile provides convenient commands for managing the application. You can update it to fit your needs.
 
 ## Contributing
 

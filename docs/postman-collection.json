@@ -1,0 +1,123 @@
+{
+  "info": {
+    "_postman_id": "f2d16d0b-d276-4bde-bc61-1a917b65c207",
+    "name": "Dating App API",
+    "description": "Collection of API endpoints for the dating app.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Create User",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"name\": \"John Doe\", \"password\": \"the_most_secure_password_on_earth\", \"age\": 30, \"gender\": \"female\", \"location\": {\"latitude\": 37.7749, \"longitude\": -122.4194}, \"interests\": [\"hiking\", \"cooking\", \"music\", \"coding\"], \"preferences\": {\"min_age\": 25, \"max_age\": 35, \"preferred_gender\": \"female\", \"max_distance\": 50}}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/sign-up",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "v1", "sign-up"]
+        }
+      },
+      "response": [
+        {
+          "message": "User created successfully",
+          "token": "auth token",
+          "user_id": "2e002355-9c4a-461e-b386-0e75a417bc77"
+        }
+      ]
+    },
+    {
+      "name": "Sign-in",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json",
+            "type": "text"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\"username\":\"John Doe\",\"password\":\"the_most_secure_password_on_earth\"}"
+        },
+        "url": {
+          "raw": "http://localhost:8080/api/v1/sign-in",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "v1", "sign-in"]
+        }
+      },
+      "response": [
+        {
+          "message": "you are Logged in",
+          "token": "your.jwt.token"
+        }
+      ]
+    },
+    {
+      "name": "Get Match Recommendations",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:8080/api/v1/match/recommendations/{user_id}?page={page}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": [
+            "api",
+            "v1",
+            "match",
+            "recommendations",
+            "{user_id}",
+            "{page}"
+          ],
+          "query": [
+            {
+              "key": "page",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Delete User by ID",
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Authorization",
+            "value": "your token"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:8080/api/v1/protected/delete/{user_id}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "8080",
+          "path": ["api", "v1", "protected", "delete", "{user_id}"]
+        }
+      },
+      "response": [
+        {
+          "message": "User deleted successfully"
+        }
+      ]
+    }
+  ]
+}

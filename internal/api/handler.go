@@ -1,9 +1,9 @@
 package api
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
+	"test-matchmaking-app/internal/domain"
 	"test-matchmaking-app/internal/repository"
 	"test-matchmaking-app/internal/service"
 
@@ -20,40 +20,58 @@ type MatchmakingHandler struct {
 func NewMatchmakingHandler(service *service.MatchmakingService, userRepo *repository.UserRepository) *MatchmakingHandler {
 	return &MatchmakingHandler{service: service, UserRepo: userRepo}
 }
-
 func (h *MatchmakingHandler) GetMatchRecommendations(c *gin.Context) {
-	userID := c.Param("user_id")
-	if userID == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
-		return
-	}
+    userID := c.Param("user_id")
+    if userID == "" {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "User ID is required"})
+        return
+    }
 
-	user, err := h.UserRepo.GetUserByID(userID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving user"})
-		return
-	}
+    // Retrieve user by ID
+    user, err := h.UserRepo.GetUserByID(userID)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving user"})
+        return
+    }
 
-	pageStr := c.Query("page")
-	page, err := strconv.Atoi(pageStr)
-	if err != nil || page <= 0 {
-		page = 1 // Default to the first page
-	}
+    // Check if the preferences fields are initialized
+    if user.Preferences.MinAge == 0 || user.Preferences.MaxAge == 0 || user.Preferences.Gender == "" || user.Preferences.MaxDistance == 0 {
+        c.JSON(http.StatusBadRequest, gin.H{"error": "User preferences not set or incomplete"})
+        return
+    }
 
-	pageSize := 10 // Define the number of items per page
-	offset := (page - 1) * pageSize
+    // Parse pagination info from query
+    pageStr := c.Query("page")
+    page, err := strconv.Atoi(pageStr)
+    if err != nil || page <= 0 {
+        page = 1 // Default to page 1
+    }
 
-	fmt.Printf("Page: %d, PageSize: %d, Offset: %d\n", page, pageSize, offset) // Debug log
+    pageSize := 10 // Items per page
+    offset := (page - 1) * pageSize
 
-	matches, err := h.UserRepo.GetMatchesForUser(user, pageSize, offset)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving matches"})
-		return
-	}
+    // Fetch matches for user based on preferences
+    matches, totalMatches, err := h.service.GetMatchesForUser(user, pageSize, offset)
+    if err != nil {
+        c.JSON(http.StatusInternalServerError, gin.H{"error": "Error retrieving matches"})
+        return
+    }
 
-	c.JSON(http.StatusOK, gin.H{
-		"matches": matches,
-		"page":    page,
-		"pageSize": pageSize,
-	})
+    // If no matches or page exceeds available matches, return empty response
+    if len(matches) == 0 || offset >= totalMatches {
+        c.JSON(http.StatusOK, gin.H{
+            "matches":     []domain.User{},
+            "page":        page,
+            "pageSize":    pageSize,
+            "totalMatches": totalMatches,
+        })
+        return
+    }
+
+    c.JSON(http.StatusOK, gin.H{
+        "matches":     matches,
+        "page":        page,
+        "pageSize":    pageSize,
+        "totalMatches": totalMatches,
+    })
 }

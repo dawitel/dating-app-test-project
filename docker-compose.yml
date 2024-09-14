@@ -13,7 +13,8 @@ services:
       - psql_volume:/var/lib/postgresql/data
 
   app:
-    image: dating-app-test-project:latest
+    build:
+      context: ./  # Path to the directory containing your Dockerfile
     environment:
       DATABASE_URL: postgres://${DB_USERNAME}:${DB_PASSWORD}@psql:5432/${DB_DATABASE}
       JWT_SECRET: ${JWT_SECRET}

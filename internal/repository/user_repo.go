@@ -2,6 +2,8 @@ package repository
 
 import (
 	"errors"
+	"fmt"
+	"log"
 	"sort"
 	"test-matchmaking-app/internal/domain"
 
@@ -27,47 +29,77 @@ func (r *UserRepository) GetUserByID(userID string) (domain.User, error) {
 	return user, err
 }
 
-func (r *UserRepository) GetMatchesForUser(user domain.User, limit, offset int) ([]domain.User, error) {
-	var matches []domain.User
+func (r *UserRepository) GetMatchesForUser(user domain.User, limit, offset int) ([]domain.User, int, error) {
+    var matches []domain.User
+    var totalMatches int64
 
-	err := r.db.
-		Where("gender = ?", user.Preferences.Gender).
-		Where("age BETWEEN ? AND ?", user.Preferences.MinAge, user.Preferences.MaxAge).
-		Where("ST_DistanceSphere(ST_MakePoint((location->>'longitude')::float8, (location->>'latitude')::float8), ST_MakePoint(?, ?)) <= ?",
-			user.Location.Longitude, user.Location.Latitude, user.Preferences.MaxDistance).
-		Where("array_length(array(select unnest(interests::text[]) intersect select unnest(?::text[])), 1) > 0", pq.Array(user.Interests)).
-		Limit(limit).
-		Offset(offset).
-		Order(clause.OrderByColumn{Column: clause.Column{Name: "last_active"}, Desc: true}).
-		Find(&matches).Error
+    // Debugging query conditions
+    fmt.Printf("Fetching matches for user: %+v\n", user)
+    fmt.Printf("Querying with preferences: %+v\n", user.Preferences)
+    fmt.Printf("Location: %+v\n", user.Location)
+    fmt.Printf("Interests: %+v\n", user.Interests)
 
-	if err != nil {
-		return nil, err
-	}
+    // Get total matches count
+    err := r.db.Model(&domain.User{}).
+        Where("gender = ?", user.Preferences.Gender).
+        Where("age BETWEEN ? AND ?", user.Preferences.MinAge, user.Preferences.MaxAge).
+        Where("ST_DistanceSphere(ST_MakePoint(?, ?), ST_MakePoint((location->>'longitude')::float8, (location->>'latitude')::float8)) <= ?",
+            user.Location.Longitude, user.Location.Latitude, user.Preferences.MaxDistance).
+        Where("array_length(array(select unnest(interests::text[]) intersect select unnest(?::text[])), 1) > 0", pq.Array(user.Interests)).
+        Count(&totalMatches).Error
+    if err != nil {
+        return nil, 0, fmt.Errorf("failed to count matches: %w", err)
+    }
 
-	matches = r.rankByMutualInterests(user, matches)
+    // Debug the count of matches
+    fmt.Printf("Total Matches Count: %d\n", totalMatches)
 
-	return matches, nil
+    // Fetch paginated matches
+    err = r.db.
+        Where("gender = ?", user.Preferences.Gender).
+        Where("age BETWEEN ? AND ?", user.Preferences.MinAge, user.Preferences.MaxAge).
+        Where("ST_DistanceSphere(ST_MakePoint(?, ?), ST_MakePoint((location->>'longitude')::float8, (location->>'latitude')::float8)) <= ?",
+            user.Location.Longitude, user.Location.Latitude, user.Preferences.MaxDistance).
+        Where("array_length(array(select unnest(interests::text[]) intersect select unnest(?::text[])), 1) > 0", pq.Array(user.Interests)).
+        Limit(limit).
+        Offset(offset).
+        Order(clause.OrderByColumn{Column: clause.Column{Name: "last_active"}, Desc: true}).
+        Find(&matches).Error
+
+    if err != nil {
+        return nil, 0, fmt.Errorf("failed to fetch matches: %w", err)
+    }
+
+    // Debug matches
+    fmt.Printf("Fetched Matches: %+v\n", matches)
+
+    // Rank matches by mutual interests
+    matches = r.rankByMutualInterests(user, matches)
+
+    return matches, int(totalMatches), nil
 }
+
+
 
 
 // rankByMutualInterests ranks users based on the number of common interests shared with the current user
 func (r *UserRepository) rankByMutualInterests(user domain.User, candidates []domain.User) []domain.User {
-	ranked := make([]domain.User, len(candidates))
+    ranked := make([]domain.User, len(candidates))
 
-	for i, candidate := range candidates {
-		commonInterests := len(intersect(user.Interests, candidate.Interests))
-		candidate.Score = commonInterests
-		ranked[i] = candidate
-	}
+    for i, candidate := range candidates {
+        commonInterests := len(intersect(user.Interests, candidate.Interests))
+        candidate.Score = commonInterests
+        ranked[i] = candidate
+    }
 
-	// Sort only by score (higher is better), as users are already sorted by last_active from DB
-	sort.SliceStable(ranked, func(i, j int) bool {
-		return ranked[i].Score > ranked[j].Score
-	})
+    // Sort by score, descending (higher score means more common interests)
+    sort.SliceStable(ranked, func(i, j int) bool {
+        return ranked[i].Score > ranked[j].Score
+    })
 
-	return ranked
+    return ranked
 }
+
 
 
 // intersect calculates the common elements between two slices
@@ -123,4 +155,17 @@ func (r *UserRepository) GetUserByName(name string) (*domain.User, error) {
 		return nil, err
 	}
 	return &user, nil
+}
+
+func (r *UserRepository) FindUserByName(name string) (*domain.User, error) {
+    var user domain.User
+    err := r.db.Where("name = ?", name).First(&user).Error
+    if err != nil {
+        if err == gorm.ErrRecordNotFound {
+            return nil, nil
+        }
+        log.Printf("Error checking user by name: %v", err)  // Log the actual error
+        return nil, err
+    }
+    return &user, nil
 }

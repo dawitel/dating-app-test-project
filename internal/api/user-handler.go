@@ -9,15 +9,16 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"gorm.io/gorm"
 )
 
-// UserHandler represents a hadler for the user related requests.
+// UserHandler represents a handler for user-related requests.
 type UserHandler struct {
 	userRepo    *repository.UserRepository
 	authService *service.AuthService
 }
 
-// NewUserHandler returs a pointer to the UserHandler.
+// NewUserHandler returns a pointer to the UserHandler.
 func NewUserHandler(userRepo *repository.UserRepository, authService *service.AuthService) *UserHandler {
 	return &UserHandler{
 		userRepo:    userRepo,
@@ -25,6 +26,7 @@ func NewUserHandler(userRepo *repository.UserRepository, authService *service.Au
 	}
 }
 
+// CreateUser handles the create user/sign-up requests.
 // CreateUser handles the create user/sign-up requests.
 func (h *UserHandler) CreateUser(c *gin.Context) {
 	var newUser domain.User
@@ -35,11 +37,22 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
+	// Check if a user with the same name already exists
+	existingUser, err := h.userRepo.FindUserByName(newUser.Name)
+	if err != nil && err != gorm.ErrRecordNotFound { // If there's an error other than "record not found", return internal server error
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error checking existing user"})
+		return
+	}
+	if existingUser != nil { // User with the same name exists
+		c.JSON(http.StatusConflict, gin.H{"error": "User with this name already exists"})
+		return
+	}
+
 	// Generate a new UUID for the user if not provided
 	if newUser.UserID == "" {
 		newUser.UserID = uuid.New().String()
 	} else {
-		// Validate user_id is a valid UUID if provided
+		// Validate that user_id is a valid UUID if provided
 		if _, err := uuid.Parse(newUser.UserID); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user_id format. Must be a valid UUID."})
 			return
@@ -52,7 +65,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to hash the password"})
 		return
 	}
-	newUser.Password = hashedPassword 
+	newUser.Password = hashedPassword
 
 	// Save the user to the database
 	if err := h.userRepo.CreateUser(&newUser); err != nil {
@@ -70,7 +83,8 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{"message": "User created successfully", "user_id": newUser.UserID, "token": token})
 }
 
-// DeleteUser hadles a delete user request.
+
+// DeleteUser handles a delete user request.
 func (h *UserHandler) DeleteUser(c *gin.Context) {
 	userID := c.Param("user_id")
 
@@ -90,7 +104,7 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "User deleted successfully"})
 }
 
-// Login handles the login requests.
+// LoginHandler handles the login requests.
 func (h *UserHandler) LoginHandler(c *gin.Context) {
 	var loginRequest struct {
 		Username string `json:"username"`

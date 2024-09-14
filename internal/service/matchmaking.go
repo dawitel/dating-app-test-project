@@ -15,14 +15,14 @@ func NewMatchmakingService(repo *repository.UserRepository) *MatchmakingService 
 
 // GetMatchesForUser retrieves matches for a user based on preferences filtering,
 // mutual interests, and activity status. Results are paginated.
-func (s *MatchmakingService) GetMatchesForUser(user domain.User, limit, offset int) ([]domain.User, error) {
-	// Fetch matches using the repository method
-	matches, err := s.repo.GetMatchesForUser(user, limit, offset)
-	if err != nil {
-		return nil, err
-	}
+func (s *MatchmakingService) GetMatchesForUser(user domain.User, limit, offset int) ([]domain.User, int, error) {
+    // Fetch matches using the repository method and return total count
+    matches, totalMatches, err := s.repo.GetMatchesForUser(user, limit, offset)
+    if err != nil {
+        return nil, 0, err
+    }
 
-	return matches, nil
+    return matches, totalMatches, nil
 }
 
 

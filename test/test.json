@@ -1,0 +1,485 @@
+[
+    {
+        "name": "_Alice",
+        "password": "password123",
+        "age": 28,
+        "gender": "female",
+        "location": {
+            "latitude": 37.7749,
+            "longitude": -122.4194
+        },
+        "interests": [
+            "hiking",
+            "reading",
+            "traveling"
+        ],
+        "preferences": {
+            "min_age": 20,
+            "max_age": 35,
+            "preferred_gender": "male",
+            "max_distance": 100
+        }
+    },
+    {
+        "name": "_Bob",
+        "password": "password456",
+        "age": 32,
+        "gender": "male",
+        "location": {
+            "latitude": 40.7128,
+            "longitude": -74.0060
+        },
+        "interests": [
+            "cycling",
+            "cooking",
+            "gaming"
+        ],
+        "preferences": {
+            "min_age": 25,
+            "max_age": 40,
+            "preferred_gender": "female",
+            "max_distance": 200
+        }
+    },
+    {
+        "name": "_Charlie",
+        "password": "password789",
+        "age": 35,
+        "gender": "non-binary",
+        "location": {
+            "latitude": 34.0522,
+            "longitude": -118.2437
+        },
+        "interests": [
+            "music",
+            "photography",
+            "sports"
+        ],
+        "preferences": {
+            "min_age": 30,
+            "max_age": 45,
+            "preferred_gender": "any",
+            "max_distance": 150
+        }
+    },
+    {
+        "name": "Diana",
+        "password": "passwordDiana",
+        "age": 27,
+        "gender": "female",
+        "location": {
+            "latitude": 37.7749,
+            "longitude": -122.4194
+        },
+        "interests": [
+            "dancing",
+            "cooking",
+            "traveling"
+        ],
+        "preferences": {
+            "min_age": 25,
+            "max_age": 30,
+            "preferred_gender": "male",
+            "max_distance": 50
+        }
+    },
+    {
+        "name": "Ethan",
+        "password": "passwordEthan",
+        "age": 31,
+        "gender": "male",
+        "location": {
+            "latitude": 40.7128,
+            "longitude": -74.0060
+        },
+        "interests": [
+            "fitness",
+            "music",
+            "reading"
+        ],
+        "preferences": {
+            "min_age": 28,
+            "max_age": 35,
+            "preferred_gender": "female",
+            "max_distance": 100
+        }
+    },
+    {
+        "name": "Fiona",
+        "password": "passwordFiona",
+        "age": 29,
+        "gender": "female",
+        "location": {
+            "latitude": 34.0522,
+            "longitude": -118.2437
+        },
+        "interests": [
+            "yoga",
+            "reading",
+            "traveling"
+        ],
+        "preferences": {
+            "min_age": 25,
+            "max_age": 30,
+            "preferred_gender": "male",
+            "max_distance": 75
+        }
+    },
+    {
+        "name": "George",
+        "password": "passwordGeorge",
+        "age": 33,
+        "gender": "male",
+        "location": {
+            "latitude": 37.7749,
+            "longitude": -122.4194
+        },
+        "interests": [
+            "sports",
+            "cooking",
+            "traveling"
+        ],
+        "preferences": {
+            "min_age": 30,
+            "max_age": 40,
+            "preferred_gender": "female",
+            "max_distance": 100
+        }
+    },
+    {
+        "name": "Hannah",
+        "password": "passwordHannah",
+        "age": 26,
+        "gender": "female",
+        "location": {
+            "latitude": 40.7128,
+            "longitude": -74.0060
+        },
+        "interests": [
+            "art",
+            "music",
+            "fitness"
+        ],
+        "preferences": {
+            "min_age": 24,
+            "max_age": 30,
+            "preferred_gender": "male",
+            "max_distance": 50
+        }
+    },
+    {
+        "name": "Isaac",
+        "password": "passwordIsaac",
+        "age": 32,
+        "gender": "male",
+        "location": {
+            "latitude": 34.0522,
+            "longitude": -118.2437
+        },
+        "interests": [
+            "technology",
+            "gaming",
+            "reading"
+        ],
+        "preferences": {
+            "min_age": 30,
+            "max_age": 35,
+            "preferred_gender": "female",
+            "max_distance": 100
+        }
+    },
+    {
+        "name": "Jasmine",
+        "password": "passwordJasmine",
+        "age": 28,
+        "gender": "female",
+        "location": {
+            "latitude": 37.7749,
+            "longitude": -122.4194
+        },
+        "interests": [
+            "cooking",
+            "fitness",
+            "reading"
+        ],
+        "preferences": {
+            "min_age": 25,
+            "max_age": 30,
+            "preferred_gender": "male",
+            "max_distance": 60
+        }
+    },
+    {
+        "name": "Kevin",
+        "password": "passwordKevin",
+        "age": 31,
+        "gender": "male",
+        "location": {
+            "latitude": 40.7128,
+            "longitude": -74.0060
+        },
+        "interests": [
+            "sports",
+            "movies",
+            "gaming"
+        ],
+        "preferences": {
+            "min_age": 28,
+            "max_age": 35,
+            "preferred_gender": "female",
+            "max_distance": 80
+        }
+    },
+    {
+        "name": "Liam",
+        "password": "passwordLiam",
+        "age": 30,
+        "gender": "male",
+        "location": {
+            "latitude": 34.0522,
+            "longitude": -118.2437
+        },
+        "interests": [
+            "gaming",
+            "traveling",
+            "fitness"
+        ],
+        "preferences": {
+            "min_age": 25,
+            "max_age": 35,
+            "preferred_gender": "female",
+            "max_distance": 100
+        }
+    },
+    {
+        "name": "Mia",
+        "password": "passwordMia",
+        "age": 27,
+        "gender": "female",
+        "location": {
+            "latitude": 37.7749,
+            "longitude": -122.4194
+        },
+        "interests": [
+            "yoga",
+            "reading",
+            "traveling"
+        ],
+        "preferences": {
+            "min_age": 22,
+            "max_age": 30,
+            "preferred_gender": "male",
+            "max_distance": 70
+        }
+    },
+    {
+        "name": "Nathan",
+        "password": "passwordNathan",
+        "age": 29,
+        "gender": "male",
+        "location": {
+            "latitude": 40.7128,
+            "longitude": -74.0060
+        },
+        "interests": [
+            "sports",
+            "fitness",
+            "music"
+        ],
+        "preferences": {
+            "min_age": 25,
+            "max_age": 35,
+            "preferred_gender": "female",
+            "max_distance": 90
+        }
+    },
+    {
+        "name": "Olivia",
+        "password": "passwordOlivia",
+        "age": 32,
+        "gender": "female",
+        "location": {
+            "latitude": 34.0522,
+            "longitude": -118.2437
+        },
+        "interests": [
+            "cooking",
+            "dancing",
+            "reading"
+        ],
+        "preferences": {
+            "min_age": 30,
+            "max_age": 35,
+            "preferred_gender": "male",
+            "max_distance": 50
+        }
+    },
+    {
+        "name": "Paul",
+        "password": "passwordPaul",
+        "age": 31,
+        "gender": "male",
+        "location": {
+            "latitude": 37.7749,
+            "longitude": -122.4194
+        },
+        "interests": [
+            "traveling",
+            "movies",
+            "music"
+        ],
+        "preferences": {
+            "min_age": 28,
+            "max_age": 35,
+            "preferred_gender": "female",
+            "max_distance": 100
+        }
+    },
+    {
+        "name": "Quinn",
+        "password": "passwordQuinn",
+        "age": 26,
+        "gender": "female",
+        "location": {
+            "latitude": 40.7128,
+            "longitude": -74.0060
+        },
+        "interests": [
+            "art",
+            "yoga",
+            "fitness"
+        ],
+        "preferences": {
+            "min_age": 22,
+            "max_age": 30,
+            "preferred_gender": "male",
+            "max_distance": 60
+        }
+    },
+    {
+        "name": "Ryan",
+        "password": "passwordRyan",
+        "age": 34,
+        "gender": "male",
+        "location": {
+            "latitude": 34.0522,
+            "longitude": -118.2437
+        },
+        "interests": [
+            "gaming",
+            "technology",
+            "sports"
+        ],
+        "preferences": {
+            "min_age": 30,
+            "max_age": 40,
+            "preferred_gender": "female",
+            "max_distance": 100
+        }
+    },
+    {
+        "name": "Sophia",
+        "password": "passwordSophia",
+        "age": 28,
+        "gender": "female",
+        "location": {
+            "latitude": 37.7749,
+            "longitude": -122.4194
+        },
+        "interests": [
+            "dancing",
+            "cooking",
+            "yoga"
+        ],
+        "preferences": {
+            "min_age": 25,
+            "max_age": 30,
+            "preferred_gender": "male",
+            "max_distance": 50
+        }
+    },
+    {
+        "name": "Tom",
+        "password": "passwordTom",
+        "age": 29,
+        "gender": "male",
+        "location": {
+            "latitude": 40.7128,
+            "longitude": -74.0060
+        },
+        "interests": [
+            "fitness",
+            "cooking",
+            "music"
+        ],
+        "preferences": {
+            "min_age": 25,
+            "max_age": 35,
+            "preferred_gender": "female",
+            "max_distance": 75
+        }
+    },
+    {
+        "name": "Uma",
+        "password": "passwordUma",
+        "age": 30,
+        "gender": "female",
+        "location": {
+            "latitude": 34.0522,
+            "longitude": -118.2437
+        },
+        "interests": [
+            "art",
+            "reading",
+            "fitness"
+        ],
+        "preferences": {
+            "min_age": 28,
+            "max_age": 35,
+            "preferred_gender": "male",
+            "max_distance": 90
+        }
+    },
+    {
+        "name": "Victor",
+        "password": "passwordVictor",
+        "age": 33,
+        "gender": "male",
+        "location": {
+            "latitude": 37.7749,
+            "longitude": -122.4194
+        },
+        "interests": [
+            "sports",
+            "technology",
+            "traveling"
+        ],
+        "preferences": {
+            "min_age": 30,
+            "max_age": 40,
+            "preferred_gender": "female",
+            "max_distance": 100
+        }
+    },
+    {
+        "name": "Willow",
+        "password": "passwordWillow",
+        "age": 25,
+        "gender": "female",
+        "location": {
+            "latitude": 40.7128,
+            "longitude": -74.0060
+        },
+        "interests": [
+            "music",
+            "reading",
+            "traveling"
+        ],
+        "preferences": {
+            "min_age": 22,
+            "max_age": 30,
+            "preferred_gender": "male",
+            "max_distance": 60
+        }
+    }
+]

@@ -23,7 +23,7 @@ migrate-create:
 
 # Start air for live reloading
 air:
-	@air
+	@air cmd/main.go
 
 # Docker Compose commands
 docker-compose-up:
