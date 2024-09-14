@@ -2,58 +2,53 @@ package config
 
 import (
 	"fmt"
+	"log"
 	"os"
+	"strconv"
 )
-
-// Config holds the database configuration
+// Config represests the cofigurations vars for the app.
 type Config struct {
-	DB_Host     string
-	DB_User     string
-	DB_Password string
-	DB_Name     string
-	DB_Port     string
-	SSLMode     string
+	DBHost     string
+	DBUser     string
+	DBPassword string
+	DBName     string
+	DBPort     int
+	SSLMode    string
+	Port       string
+	JWTSecret  string
 }
 
-// LoadConfig reads configuration from environment variables
-func LoadConfig() (*Config, error) {
-	dbHost := os.Getenv("DB_HOST")
-	if dbHost == "" {
-		return nil, fmt.Errorf("DB_HOST environment variable is required")
+// LoadConfig assembles the config and returns a pointer to it.
+func LoadConfig() *Config {
+	port, err := strconv.Atoi(getEnv("DB_PORT", "5432"))
+	if err != nil {
+		log.Fatalf("Invalid DB_PORT: %v", err)
 	}
 
-	dbUser := os.Getenv("DB_USER")
-	if dbUser == "" {
-		return nil, fmt.Errorf("DB_USER environment variable is required")
+	return &Config{
+		DBHost:     getEnv("DB_HOST", "localhost"),
+		DBUser:     getEnv("DB_USER", "root"),
+		DBPassword: getEnv("DB_PASSWORD", "1234"),
+		DBName:     getEnv("DB_NAME", "dating_app"),
+		DBPort:     port,
+		SSLMode:    getEnv("SSL_MODE", "disabled"),
+		Port:       getEnv("PORT", ":8080"),
+		JWTSecret:  getEnv("JWT_SECRET", "topsecret"),
 	}
+}
 
-	dbPassword := os.Getenv("DB_PASSWORD")
-	if dbPassword == "" {
-		return nil, fmt.Errorf("DB_PASSWORD environment variable is required")
+// getEnv returs the values of the env variales.
+func getEnv(key, defaultValue string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
 	}
+	return defaultValue
+}
 
-	dbName := os.Getenv("DB_NAME")
-	if dbName == "" {
-		return nil, fmt.Errorf("DB_NAME environment variable is required")
-	}
-
-	dbPortStr := os.Getenv("DB_PORT")
-	if dbPortStr == "" {
-		return nil, fmt.Errorf("DB_PORT environment variable is required")
-	}
-	sslMode := os.Getenv("SSL_MODE")
-	if sslMode == "" {
-		return nil, fmt.Errorf("SSL_MODE environment variable is required")
-	}
-
-	config := &Config{
-		DB_Host:     dbHost,
-		DB_User:     dbUser,
-		DB_Password: dbPassword,
-		DB_Name:     dbName,
-		DB_Port:     dbPortStr,
-		SSLMode:     sslMode, // Optionally process this further if needed
-	}
-
-	return config, nil
+// GetDSN returns a GORM-compatible DSN string.
+func (c *Config) GetDSN() string {
+	return fmt.Sprintf(
+		"host=%s user=%s password=%s dbname=%s port=%d sslmode=%s",
+		c.DBHost, c.DBUser, c.DBPassword, c.DBName, c.DBPort, c.SSLMode,
+	)
 }

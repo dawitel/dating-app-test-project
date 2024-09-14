@@ -12,5 +12,17 @@ services:
     volumes:
       - psql_volume:/var/lib/postgresql/data
 
+  app:
+    image: dating-app-test-project:latest
+    environment:
+      DATABASE_URL: postgres://${DB_USERNAME}:${DB_PASSWORD}@psql:5432/${DB_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
+    ports:
+      - "${PORT}:8080"
+    depends_on:
+      - psql
+    volumes:
+      - ./app:/app
+
 volumes:
   psql_volume:
