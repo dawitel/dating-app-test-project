@@ -141,7 +141,7 @@ This backend service handles user operations and matchmaking functionality for a
 
 ## Sign In
 
-- **Endpoint:** `POST /api/v1/sign-in`
+- **Endpoint:** `POST /users/sign-in`
 - **Description:** Login as a user.
 - **Request Body:**
 
@@ -164,7 +164,7 @@ This backend service handles user operations and matchmaking functionality for a
 
 ### Delete User
 
-- **Endpoint:** `DELETE /api/v1/delete/:user_id`
+- **Endpoint:** `DELETE /users/delete/:user_id`
 - **Description:** Deletes a user profile based on the user ID.
 - **Parameters:**
   - `user_id` (path parameter): The UUID of the user to be deleted.

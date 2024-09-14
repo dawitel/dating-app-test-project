@@ -48,8 +48,8 @@ func main() {
 	authRoutes := router.Group("/users")
 	authRoutes.Use(authService.AuthMiddleware()) // JWT protection
 	{
-		authRoutes.POST("/api/v1/sign-in", userHandler.LoginHandler)
-		authRoutes.DELETE("/api/v1/delete/:user_id", userHandler.DeleteUser)
+		authRoutes.POST("/sign-in", userHandler.LoginHandler)
+		authRoutes.DELETE("/delete/:user_id", userHandler.DeleteUser)
 	}
 
 	router.Run(cfg.Port)
