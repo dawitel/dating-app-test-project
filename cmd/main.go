@@ -14,30 +14,39 @@ import (
 )
 
 func main() {
-    dsn, err := config.GetDSN()
-    if err != nil {
-        log.Fatal("Missing Environment variables:", err)
-    }
-    db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
-    if err != nil {
-        log.Fatal("Failed to connect to database:", err)
-    }
+	// load configurations for the app
+	cfg := config.LoadConfig()
+	dsn := cfg.GetDSN()
+	
+	// open a postgres db connection
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		log.Fatal("Failed to connect to database:", err)
+	}
 
-    userRepo := repository.NewUserRepository(db)
-    matchmakingService := service.NewMatchmakingService(userRepo)
-    matchmakingHandler := api.NewMatchmakingHandler(matchmakingService)
-    userHandler := api.NewUserHandler(userRepo)
-    
-    router := gin.Default()
-    router.HandleMethodNotAllowed = true
-    router.NoMethod(func(c *gin.Context) {
-        c.JSON(http.StatusMethodNotAllowed, gin.H{
-            "error": "Method Not Allowed",
-        })
-    })
-    router.GET("/api/match/recommendations/:user_id", matchmakingHandler.GetMatchRecommendations)
-    router.POST("/api/create-user", userHandler.CreateUser)
-    router.DELETE("/api/delete/:user_id", userHandler.DeleteUser)
+	// Initiate all needed services
+	userRepo := repository.NewUserRepository(db)
+	matchmakingService := service.NewMatchmakingService(userRepo)
+	matchmakingHandler := api.NewMatchmakingHandler(matchmakingService, userRepo)
+	authService := service.NewAuthService()
+	userHandler := api.NewUserHandler(userRepo, authService)
 
-    router.Run(":8080")
+	// initiate the router for the app with error handlig
+	router := gin.Default()
+	router.HandleMethodNotAllowed = true
+	router.NoMethod(func(c *gin.Context) {
+		c.JSON(http.StatusMethodNotAllowed, gin.H{
+			"error": "Method Not Allowed",
+		})
+	})
+
+	// these routes are made public for simlicity
+	router.GET("/api/v1/match/recommendations/:user_id", matchmakingHandler.GetMatchRecommendations)
+	router.POST("/api/v1/sign-up", userHandler.CreateUser)
+
+	// protected route for demonstrating the auth service functioality 
+	router.POST("/api/v1/sign-in", authService.AuthMiddleware(), userHandler.LoginHandler)
+	router.DELETE("/api/v1/delete/:user_id", authService.AuthMiddleware(), userHandler.DeleteUser)
+
+	router.Run(cfg.Port)
 }
